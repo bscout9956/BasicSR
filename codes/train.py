@@ -100,7 +100,7 @@ def main():
     # training
     logger.info('Start training from epoch: {:d}, iter: {:d}'.format(start_epoch, current_step))
     for epoch in range(start_epoch, total_epochs):
-        for _, train_data in enumerate(train_loader):
+        for n, train_data in enumerate(train_loader, 1):
             current_step += 1
             if current_step > total_iters:
                 break
@@ -122,6 +122,12 @@ def main():
                     if opt['use_tb_logger'] and 'debug' not in opt['name']:
                         tb_logger.add_scalar(k, v, current_step)
                 logger.info(message)
+
+            # save models and training states
+            if current_step % opt['logger']['save_checkpoint_freq'] == 0:
+                model.save(current_step)
+                model.save_training_state(epoch + (n >= len(train_loader)), current_step)
+                logger.info('Saved models and training states.')
 
             # validation
             if current_step % opt['train']['val_freq'] == 0:
@@ -163,12 +169,6 @@ def main():
                 # tensorboard logger
                 if opt['use_tb_logger'] and 'debug' not in opt['name']:
                     tb_logger.add_scalar('psnr', avg_psnr, current_step)
-
-            # save models and training states
-            if current_step % opt['logger']['save_checkpoint_freq'] == 0:
-                logger.info('Saving models and training states.')
-                model.save(current_step)
-                model.save_training_state(epoch, current_step)
 
     logger.info('Saving the final model.')
     model.save('latest')
