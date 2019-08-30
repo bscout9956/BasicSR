@@ -3,7 +3,6 @@ import math
 import pickle
 import random
 import numpy as np
-import lmdb
 import torch
 import cv2
 import logging
@@ -32,6 +31,7 @@ def _get_paths_from_images(path):
 
 
 def _get_paths_from_lmdb(dataroot):
+    import lmdb
     env = lmdb.open(dataroot, readonly=True, lock=False, readahead=False, meminit=False)
     keys_cache_file = os.path.join(dataroot, '_keys_cache.p')
     logger = logging.getLogger('base')
