@@ -114,21 +114,21 @@ def define_D(opt):
     opt_net = opt['network_D']
     which_model = opt_net['which_model_D']
 
-    if which_model == 'discriminator_vgg_128':
-        netD = arch.Discriminator_VGG_128(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
-
-    elif which_model == 'dis_acd':  # sft-gan, Auxiliary Classifier Discriminator
+    if which_model == 'dis_acd':  # sft-gan, Auxiliary Classifier Discriminator
         netD = sft_arch.ACD_VGG_BN_96()
-
-    elif which_model == 'discriminator_vgg_96':
-        netD = arch.Discriminator_VGG_96(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
-    elif which_model == 'discriminator_vgg_192':
-        netD = arch.Discriminator_VGG_192(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
     elif which_model == 'discriminator_vgg_128_SN':
         netD = arch.Discriminator_VGG_128_SN()
+    elif which_model.startswith('discriminator_vgg_'):
+        vgg_size = which_model[18:]
+        try:
+            size = int(vgg_size)
+            netD = arch.Discriminator_VGG(size=size, in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
+                norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
+        except ValueError:
+            raise ValueError('VGG Discriminator size [{:s}] could not be parsed.'.format(vgg_size))
+    elif which_model == 'discriminator_vgg':
+        netD = arch.Discriminator_VGG(size=opt_net['size'], in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
+            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
     else:
         raise NotImplementedError('Discriminator model [{:s}] not recognized'.format(which_model))
 
