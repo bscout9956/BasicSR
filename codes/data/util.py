@@ -69,8 +69,9 @@ def _read_lmdb_img(env, path):
     with env.begin(write=False) as txn:
         buf = txn.get(path.encode('ascii'))
         buf_meta = txn.get((path + '.meta').encode('ascii')).decode('ascii')
-    img_flat = np.frombuffer(buf, dtype=np.uint8)
     H, W, C = [int(s) for s in buf_meta.split(',')]
+    S = len(buf) / (H * W * C)
+    img_flat = np.frombuffer(buf, dtype=(np.uint16 if S == 2 else np.uint8))
     img = img_flat.reshape(H, W, C)
     return img
 
@@ -85,7 +86,7 @@ def read_img(env, path, out_nc=3):
         img = _read_lmdb_img(env, path)
     if img is None:
         raise ValueError('Image [{:s}] could not be decoded.'.format(path))
-    img = img.astype(np.float32) / 255.
+    img = img.astype(np.float32) / np.iinfo(img.dtype).max
     if img.ndim == 2:
         #img = np.expand_dims(img, axis=2)
         img = np.tile(np.expand_dims(img, axis=2), (1, 1, 3))
