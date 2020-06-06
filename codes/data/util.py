@@ -83,6 +83,8 @@ def read_img(env, path, out_nc=3):
         img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
     else:
         img = _read_lmdb_img(env, path)
+    if img is None:
+        raise ValueError('Image [{:s}] could not be decoded.'.format(path))
     img = img.astype(np.float32) / 255.
     if img.ndim == 2:
         #img = np.expand_dims(img, axis=2)
