@@ -73,5 +73,6 @@
   , "logger": {
     "print_freq": 200
     , "save_checkpoint_freq": 2e3
+    , "backup_freq": 200
   }
 }
