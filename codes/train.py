@@ -24,7 +24,7 @@ def cycle(dataloader):
 def main():
     # options
     parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, required=True, help='Path to option JSON file.')
+    parser.add_argument('-opt', type=str, required=True, help='Path to options file.')
     parser.add_argument('-simple', action='store_true', help='Enable simple logging.')
     opt = option.parse(parser.parse_args().opt, is_train=True)
     opt = option.dict_to_nonedict(opt)  # Convert to NoneDict, which return None for missing key.
