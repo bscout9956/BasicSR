@@ -19,7 +19,7 @@ from models.modules.LPIPS import compute_dists as lpips
 def main():
     # options
     parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, required=True, help='Path to option JSON file.')
+    parser.add_argument('-opt', type=str, required=True, help='Path to options file.')
     parser.add_argument('-simple', action='store_true', help='Enable simple logging.')
     opt = option.parse(parser.parse_args().opt, is_train=True)
     opt = option.dict_to_nonedict(opt)  # Convert to NoneDict, which return None for missing key.
@@ -97,7 +97,7 @@ def main():
         start_epoch = resume_state['epoch']
         current_step = resume_state['iter']
         model.resume_training(resume_state)  # handle optimizers and schedulers
-        model.update_schedulers(opt['train']) # updated schedulers in case JSON configuration has changed
+        model.update_schedulers(opt['train']) # updated schedulers in case configuration has changed
     else:
         current_step = 0
         start_epoch = 0
