@@ -235,6 +235,6 @@ class SRGANModel(BaseModel):
             logger.info('Loading pretrained model for D [{:s}] ...'.format(load_path_D))
             self.load_network(load_path_D, self.netD)
 
-    def save(self, iter_step):
-        self.save_network(self.netG, 'G', iter_step)
-        self.save_network(self.netD, 'D', iter_step)
+    def save(self, iter_step, name=None):
+        self.save_network(self.netG, 'G', iter_step, name)
+        self.save_network(self.netD, 'D', iter_step, name)
