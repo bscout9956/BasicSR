@@ -42,6 +42,7 @@ network_G:
 
 train:
   lr_G: !!float 2e-4
+
   lr_scheme: 'MultiStepLR'
   lr_steps: [200000, 400000, 600000, 800000]
   lr_gamma: 0.5
