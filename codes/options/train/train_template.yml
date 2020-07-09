@@ -118,7 +118,7 @@ network_G:
 #Discriminator options:
 network_D:
   #ESRGAN:
-  which_model_D: 'discriminator_vgg' # discriminator_vgg | discriminator_vgg_128
+  which_model_D: 'dis_unet' # discriminator_vgg | dis_unet
   norm_type: 'batch'
   act_type: 'leakyrelu'
   mode: 'CNA' # 'CNA' | 'NAC'
@@ -158,10 +158,10 @@ train:
   ##clear_state: true
 
   #Losses:
-  pixel_criterion: 'l1' # 'l1' | 'l2' | 'cb' | 'elastic' | 'relativel1' | 'l1cosinesim' # pixel loss
-  pixel_weight: !!float 1e-2 # 1e-2 | 1
-  feature_criterion: 'l1' # 'l1' | 'l2' | 'cb' | 'elastic' # feature loss (VGG feature network)
-  feature_weight: 1
+  pixel_criterion: 'huber' # 'l1' | 'l2' | 'cb' | 'elastic' | 'relativel1' | 'l1cosinesim' | 'huber' # pixel loss
+  pixel_weight: !!float 1 # 1e-2 (vanilla) | 1 (ciplab)
+  #feature_criterion: 'l1' # 'l1' | 'l2' | 'cb' | 'elastic' # feature loss (VGG feature network)
+  #feature_weight: 1
   #hfen_criterion: 'l1' # hfen: 'l1' | 'l2' | 'rel_l1' | 'rel_l2' # helps in deblurring and finding edges, lines
   #hfen_weight: !!float 1e-1
   #tv_type: 'normal' # helps in denoising, reducing upscale artefacts
@@ -169,11 +169,15 @@ train:
   #tv_norm: 2 # 1 for l1 (default) or 2 for l2. Change 'tv_weight' so the l_g_tv is around 1e-02
   #ssim_type: 'ms-ssim' # 'ssim' | 'ms-ssim' # helps to maintain luminance, contrast and covariance between SR and HR
   #ssim_weight: 1
-  gan_type: 'vanilla' # 'vanilla' | basic
-  gan_weight: !!float 5e-3 # *
-  #lpips_weight: 1 # perceptual loss
-  #lpips_type: 'net-lin' # net-lin | net *
-  #lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
+  gan_type: 'ciplab' # 'vanilla' | basic | ciplab
+  gan_weight: !!float 1e-3 #5e-3 (vanilla) | 1e-3 (ciplab)
+  lpips_weight: !!float 1e-3 # perceptual loss
+  lpips_type: 'net-lin' # net-lin | net *
+  lpips_net: 'alex' # 'vgg' | 'alex' | 'squeeze'
+
+  #for ciplab
+  fm_criterion: 'huber'
+  fm_weight: 1 #feature matching loss
 
   #for wgan-gp
   #D_update_ratio: 1
