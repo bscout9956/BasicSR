@@ -325,6 +325,96 @@ class RRDB(nn.Module):
         return out.mul(0.2) + x
 
 
+### U-Net Discriminator ###
+# Residual block for the discriminator
+class DBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, which_conv=nn.Conv2d, which_bn=nn.BatchNorm2d, wide=True,
+                preactivation=True, activation=nn.LeakyReLU(0.1, inplace=False), downsample=nn.AvgPool2d(2, stride=2)):
+        super(DBlock, self).__init__()
+        self.in_channels, self.out_channels = in_channels, out_channels
+        # If using wide D (as in SA-GAN and BigGAN), change the channel pattern
+        self.hidden_channels = self.out_channels if wide else self.in_channels
+        self.which_conv, self.which_bn = which_conv, which_bn
+        self.preactivation = preactivation
+        self.activation = activation
+        self.downsample = downsample
+        
+        # Conv layers
+        self.conv1 = self.which_conv(self.in_channels, self.hidden_channels, kernel_size=3, padding=1)
+        self.conv2 = self.which_conv(self.hidden_channels, self.out_channels, kernel_size=3, padding=1)
+        self.learnable_sc = True if (in_channels != out_channels) or downsample else False
+        if self.learnable_sc:
+            self.conv_sc = self.which_conv(in_channels, out_channels,
+                                            kernel_size=1, padding=0)
+
+        self.bn1 = self.which_bn(self.hidden_channels)
+        self.bn2 = self.which_bn(out_channels)
+
+    # def shortcut(self, x):
+    #     if self.preactivation:
+    #         if self.learnable_sc:
+    #             x = self.conv_sc(x)
+    #         if self.downsample:
+    #             x = self.downsample(x)
+    #     else:
+    #         if self.downsample:
+    #             x = self.downsample(x)
+    #         if self.learnable_sc:
+    #             x = self.conv_sc(x)
+    #     return x
+    
+    def forward(self, x):
+        if self.preactivation:
+            # h = self.activation(x) # NOT TODAY SATAN
+            # Andy's note: This line *must* be an out-of-place ReLU or it
+            #              will negatively affect the shortcut connection.
+            h = self.activation(x)
+        else:
+            h = x
+        h = self.bn1(self.conv1(h))
+        # h = self.conv2(self.activation(h))
+        if self.downsample:
+            h = self.downsample(h)
+        
+        return h #+ self.shortcut(x)
+
+
+class GBlock(nn.Module):
+    def __init__(self, in_channels, out_channels,
+                which_conv=nn.Conv2d, which_bn=nn.BatchNorm2d, activation=nn.LeakyReLU(0.1, inplace=False),
+                upsample=nn.Upsample(scale_factor=2, mode='nearest')):
+        super(GBlock, self).__init__()
+        
+        self.in_channels, self.out_channels = in_channels, out_channels
+        self.which_conv, self.which_bn = which_conv, which_bn
+        self.activation = activation
+        self.upsample = upsample
+        # Conv layers
+        self.conv1 = self.which_conv(self.in_channels, self.out_channels, kernel_size=3, padding=1)
+        self.conv2 = self.which_conv(self.out_channels, self.out_channels, kernel_size=3, padding=1)
+        self.learnable_sc = in_channels != out_channels or upsample
+        if self.learnable_sc:
+            self.conv_sc = self.which_conv(in_channels, out_channels,
+                                            kernel_size=1, padding=0)
+        # Batchnorm layers
+        self.bn1 = self.which_bn(out_channels)
+        self.bn2 = self.which_bn(out_channels)
+        # upsample layers
+        self.upsample = upsample
+
+    def forward(self, x):
+        h = self.activation(x)
+        if self.upsample:
+            h = self.upsample(h)
+            # x = self.upsample(x)
+        h = self.bn1(self.conv1(h))
+        # h = self.activation(self.bn2(h))
+        # h = self.conv2(h)
+        # if self.learnable_sc:
+        #     x = self.conv_sc(x)
+        return h #+ x
+
+
 ####################
 # Upsampler
 ####################

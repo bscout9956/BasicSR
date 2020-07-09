@@ -195,6 +195,9 @@ def define_D(opt):
                 norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'], convtype=opt_net['convtype'])
         except ValueError:
             raise ValueError('VGG Discriminator size [{:s}] could not be parsed from the HR patch size. Check that the image patch size is either a power of 2 or 3 multiplied by a power of 2.'.format(vgg_size))
+    elif which_model == 'dis_unet':
+        from models.modules.architectures import discriminators
+        netD = discriminators.UnetD(in_nc=opt_net['in_nc'])
     else:
         raise NotImplementedError('Discriminator model [{:s}] not recognized'.format(which_model))
     """

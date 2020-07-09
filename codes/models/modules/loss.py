@@ -145,6 +145,8 @@ class GANLoss(nn.Module):
                 return -1 * input.mean() if target else input.mean()
 
             self.loss = wgan_loss
+        elif self.gan_type == 'ciplab':
+            pass # ciplab's unet is handled explicitly
         else:
             raise NotImplementedError('GAN type [{:s}] is not found'.format(self.gan_type))
 
@@ -410,6 +412,24 @@ class L1CosineSim(nn.Module):
     def forward(self, x, y):
         cosine_term = (1 - self.similarity(x, y)).mean()
         return self.l1_loss(x, y) + self.loss_lambda * cosine_term
+
+
+def Huber(input, target, delta=0.01, reduce=True):
+    abs_error = torch.abs(input - target)
+    quadratic = torch.clamp(abs_error, max=delta)
+
+    # The following expression is the same in value as
+    # tf.maximum(abs_error - delta, 0), but importantly the gradient for the
+    # expression when abs_error == delta is 0 (for tf.maximum it would be 1).
+    # This is necessary to avoid doubling the gradient, since there is already a
+    # nonzero contribution to the gradient from the quadratic term.
+    linear = (abs_error - quadratic)
+    losses = 0.5 * torch.pow(quadratic, 2) + delta * linear
+    
+    if reduce:
+        return torch.mean(losses)
+    else:
+        return losses
 
 
 """        

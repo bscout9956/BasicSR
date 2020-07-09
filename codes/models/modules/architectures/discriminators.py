@@ -1,6 +1,7 @@
 import math
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torchvision
 from . import block as B
 from . import spectral_norm as SN
@@ -281,6 +282,67 @@ class Discriminator_VGG_256(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
         return x
+
+
+class UnetD(torch.nn.Module):
+    def __init__(self, in_nc):
+        super(UnetD, self).__init__()
+
+        self.enc_b1 = B.DBlock(in_nc, 64, preactivation=False)
+        self.enc_b2 = B.DBlock(64, 128)
+        self.enc_b3 = B.DBlock(128, 192)
+        self.enc_b4 = B.DBlock(192, 256)
+        self.enc_b5 = B.DBlock(256, 320)
+        self.enc_b6 = B.DBlock(320, 384)
+
+        self.enc_out = nn.Conv2d(384, 1, kernel_size=1, padding=0)
+
+        self.dec_b1 = B.GBlock(384, 320)
+        self.dec_b2 = B.GBlock(320*2, 256)
+        self.dec_b3 = B.GBlock(256*2, 192)
+        self.dec_b4 = B.GBlock(192*2, 128)
+        self.dec_b5 = B.GBlock(128*2, 64)
+        self.dec_b6 = B.GBlock(64*2, 32)
+
+        self.dec_out = nn.Conv2d(32, 1, kernel_size=1, padding=0)
+
+        # Init weights
+        for m in self.modules():
+            classname = m.__class__.__name__
+            if classname.lower().find('conv') != -1:
+                # print(classname)
+                nn.init.kaiming_normal(m.weight)
+                nn.init.constant(m.bias, 0)
+            elif classname.find('bn') != -1:
+                m.weight.data.normal_(1.0, 0.02)
+                m.bias.data.fill_(0)
+
+    def forward(self, x):
+        e1 = self.enc_b1(x)
+        e2 = self.enc_b2(e1)
+        e3 = self.enc_b3(e2)
+        e4 = self.enc_b4(e3)
+        e5 = self.enc_b5(e4)
+        e6 = self.enc_b6(e5)
+
+        e_out = self.enc_out(F.leaky_relu(e6, 0.1))
+        # print(e1.size())
+        # print(e2.size())
+        # print(e3.size())
+        # print(e4.size())
+        # print(e5.size())
+        # print(e6.size())
+
+        d1 = self.dec_b1(e6)
+        d2 = self.dec_b2(torch.cat([d1, e5], 1))
+        d3 = self.dec_b3(torch.cat([d2, e4], 1))
+        d4 = self.dec_b4(torch.cat([d3, e3], 1))
+        d5 = self.dec_b5(torch.cat([d4, e2], 1))
+        d6 = self.dec_b6(torch.cat([d5, e1], 1))
+
+        d_out = self.dec_out(F.leaky_relu(d6, 0.1))
+
+        return e_out, d_out, [e1,e2,e3,e4,e5,e6], [d1,d2,d3,d4,d5,d6]
 
 
 ####################
