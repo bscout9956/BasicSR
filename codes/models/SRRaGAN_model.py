@@ -405,9 +405,9 @@ class SRRaGANModel(BaseModel):
 
                         # GAN loss
                         loss_Advs = []
-                        loss_Advs += [nn.ReLU()(1.0 - e_S).mean() * self.l_gan_w]
-                        loss_Advs += [nn.ReLU()(1.0 - d_S).mean() * self.l_gan_w]
-                        loss_Adv = torch.mean(torch.stack(loss_Advs)) / bm
+                        loss_Advs += [nn.ReLU()(1.0 - e_S).mean()]
+                        loss_Advs += [nn.ReLU()(1.0 - d_S).mean()]
+                        loss_Adv = self.l_gan_w * torch.mean(torch.stack(loss_Advs)) / bm
                         l_g_total += loss_Adv
                         self.log_dict['l_g_gan'] += loss_Adv.item()
                     else:
