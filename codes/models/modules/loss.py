@@ -414,22 +414,28 @@ class L1CosineSim(nn.Module):
         return self.l1_loss(x, y) + self.loss_lambda * cosine_term
 
 
-def Huber(input, target, delta=0.01, reduce=True):
-    abs_error = torch.abs(input - target)
-    quadratic = torch.clamp(abs_error, max=delta)
+class Huber(nn.Module):
+    def __init__(self, delta=0.01, reduce=True):
+        super(Huber, self).__init__()
+        self.delta = delta
+        self.reduce = reduce
 
-    # The following expression is the same in value as
-    # tf.maximum(abs_error - delta, 0), but importantly the gradient for the
-    # expression when abs_error == delta is 0 (for tf.maximum it would be 1).
-    # This is necessary to avoid doubling the gradient, since there is already a
-    # nonzero contribution to the gradient from the quadratic term.
-    linear = (abs_error - quadratic)
-    losses = 0.5 * torch.pow(quadratic, 2) + delta * linear
-    
-    if reduce:
-        return torch.mean(losses)
-    else:
-        return losses
+    def forward(self, input, target):
+        abs_error = torch.abs(input - target)
+        quadratic = torch.clamp(abs_error, max=self.delta)
+
+        # The following expression is the same in value as
+        # tf.maximum(abs_error - delta, 0), but importantly the gradient for the
+        # expression when abs_error == delta is 0 (for tf.maximum it would be 1).
+        # This is necessary to avoid doubling the gradient, since there is already a
+        # nonzero contribution to the gradient from the quadratic term.
+        linear = (abs_error - quadratic)
+        losses = 0.5 * torch.pow(quadratic, 2) + self.delta * linear
+
+        if self.reduce:
+            return torch.mean(losses)
+        else:
+            return losses
 
 
 """        

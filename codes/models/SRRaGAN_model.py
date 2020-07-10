@@ -77,7 +77,7 @@ class SRRaGANModel(BaseModel):
                 elif l_pix_type == 'smoothl1':
                     self.cri_pix = nn.SmoothL1Loss().to(self.device)
                 elif l_pix_type == 'huber':
-                    self.cri_pix = Huber
+                    self.cri_pix = Huber().to(self.device)
                 else:
                     raise NotImplementedError('Loss type [{:s}] not recognized.'.format(l_pix_type))
                 self.l_pix_w = train_opt['pixel_weight']
@@ -239,7 +239,7 @@ class SRRaGANModel(BaseModel):
                     if l_fm_type == 'smoothl1':
                         self.cri_fm = nn.SmoothL1Loss().to(self.device)
                     elif l_fm_type == 'huber':
-                        self.cri_fm = Huber
+                        self.cri_fm = Huber().to(self.device)
                     else:
                         raise NotImplementedError('Loss type [{:s}] not recognized.'.format(l_fm_type))
                     self.l_fm_w = train_opt['fm_weight']
