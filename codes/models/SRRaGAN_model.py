@@ -442,10 +442,10 @@ class SRRaGANModel(BaseModel):
                             l_g_total += l_g_gan
                             self.log_dict['l_g_gan'] += l_g_gan.item()
                 
-            if use_amp:
-                self.scaler.scale(l_g_total).backward()
-            else:
-                l_g_total.backward()
+                if use_amp:
+                    self.scaler.scale(l_g_total).backward()
+                else:
+                    l_g_total.backward()
 
             if self.cri_gan:
                 # D
