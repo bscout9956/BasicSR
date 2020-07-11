@@ -406,108 +406,108 @@ class SRRaGANModel(BaseModel):
                     l_g_lpips = self.cri_lpips.forward(self.fake_H, self.var_H, normalize=True).mean() / bm # -> # If normalize is True, assumes the images are between [0,1] and then scales them between [-1,+1]
                     l_g_total += l_g_lpips
                     self.log_dict['l_g_lpips'] += l_g_lpips.item()
-            with autocast():    
-                if self.cri_gan:
-                    if self.opt['train']['gan_type'] == 'ciplab':
-                        # FM and GAN losses
-                        e_S, d_S, e_Ss, d_Ss = self.netD( self.fake_H )
-                        _, _, e_Hs, d_Hs = self.netD( self.var_ref )
+                with autocast():    
+                    if self.cri_gan:
+                        if self.opt['train']['gan_type'] == 'ciplab':
+                            # FM and GAN losses
+                            e_S, d_S, e_Ss, d_Ss = self.netD( self.fake_H )
+                            _, _, e_Hs, d_Hs = self.netD( self.var_ref )
 
-                        # FM loss
-                        loss_FMs = []
-                        for f in range(len(e_Ss)):
-                            loss_FMs += [self.cri_fm(e_Ss[f], e_Hs[f])]
-                            loss_FMs += [self.cri_fm(d_Ss[f], d_Hs[f])]
-                        loss_FM = self.l_fm_w * torch.mean(torch.stack(loss_FMs)) / bm
-                        l_g_total += loss_FM
-                        self.log_dict['l_g_fm'] += loss_FM.item()
+                            # FM loss
+                            loss_FMs = []
+                            for f in range(len(e_Ss)):
+                                loss_FMs += [self.cri_fm(e_Ss[f], e_Hs[f])]
+                                loss_FMs += [self.cri_fm(d_Ss[f], d_Hs[f])]
+                            loss_FM = self.l_fm_w * torch.mean(torch.stack(loss_FMs)) / bm
+                            l_g_total += loss_FM
+                            self.log_dict['l_g_fm'] += loss_FM.item()
 
-                        # GAN loss
-                        loss_Advs = []
-                        loss_Advs += [nn.ReLU()(1.0 - e_S).mean()]
-                        loss_Advs += [nn.ReLU()(1.0 - d_S).mean()]
-                        loss_Adv = self.l_gan_w * torch.mean(torch.stack(loss_Advs)) / bm
-                        l_g_total += loss_Adv
-                        self.log_dict['l_g_gan'] += loss_Adv.item()
-                    else:
-                        # G gan + cls loss
-                        if self.use_frequency_separation: # ESRGAN-FS / Frequency Separation
-                            pred_g_fake = self.netD(self.filter_high(self.fake_H))
-                            pred_d_real = self.netD(self.filter_high(self.var_ref)).detach()
+                            # GAN loss
+                            loss_Advs = []
+                            loss_Advs += [nn.ReLU()(1.0 - e_S).mean()]
+                            loss_Advs += [nn.ReLU()(1.0 - d_S).mean()]
+                            loss_Adv = self.l_gan_w * torch.mean(torch.stack(loss_Advs)) / bm
+                            l_g_total += loss_Adv
+                            self.log_dict['l_g_gan'] += loss_Adv.item()
                         else:
-                            pred_g_fake = self.netD(self.fake_H)
-                            pred_d_real = self.netD(self.var_ref).detach()
-                        l_g_gan = self.l_gan_w * (self.cri_gan(pred_d_real - torch.mean(pred_g_fake), False) +
-                                                  self.cri_gan(pred_g_fake - torch.mean(pred_d_real), True)) / (bm * 2)
-                        l_g_total += l_g_gan
-                        self.log_dict['l_g_gan'] += l_g_gan.item()
+                            # G gan + cls loss
+                            if self.use_frequency_separation: # ESRGAN-FS / Frequency Separation
+                                pred_g_fake = self.netD(self.filter_high(self.fake_H))
+                                pred_d_real = self.netD(self.filter_high(self.var_ref)).detach()
+                            else:
+                                pred_g_fake = self.netD(self.fake_H)
+                                pred_d_real = self.netD(self.var_ref).detach()
+                            l_g_gan = self.l_gan_w * (self.cri_gan(pred_d_real - torch.mean(pred_g_fake), False) +
+                                                    self.cri_gan(pred_g_fake - torch.mean(pred_d_real), True)) / (bm * 2)
+                            l_g_total += l_g_gan
+                            self.log_dict['l_g_gan'] += l_g_gan.item()
                 
             if use_amp:
                 self.scaler.scale(l_g_total).backward()
             else:
                 l_g_total.backward()
 
-        if self.cri_gan:
-            # D
-            for p in self.netD.parameters():
-                p.requires_grad = True
+            if self.cri_gan:
+                # D
+                for p in self.netD.parameters():
+                    p.requires_grad = True
 
-            l_d_total = 0
-            with autocast():
-                if self.opt['train']['gan_type'] == 'ciplab':
-                    e_S, d_S, _, _ = self.netD( self.fake_H.detach() )
-                    e_H, d_H, _, _ = self.netD( self.var_ref )
+                l_d_total = 0
+                with autocast():
+                    if self.opt['train']['gan_type'] == 'ciplab':
+                        e_S, d_S, _, _ = self.netD( self.fake_H.detach() )
+                        e_H, d_H, _, _ = self.netD( self.var_ref )
 
-                    # D Loss, for encoder end and decoder end
-                    l_d_enc_S = torch.nn.ReLU()(1.0 + e_S).mean() / bm
-                    l_d_enc_H = torch.nn.ReLU()(1.0 - e_H).mean() / bm
+                        # D Loss, for encoder end and decoder end
+                        l_d_enc_S = torch.nn.ReLU()(1.0 + e_S).mean() / bm
+                        l_d_enc_H = torch.nn.ReLU()(1.0 - e_H).mean() / bm
 
-                    l_d_dec_S = torch.nn.ReLU()(1.0 + d_S).mean() / bm
-                    l_d_dec_H = torch.nn.ReLU()(1.0 - d_H).mean() / bm
-                    self.log_dict['l_d_enc_H'] += l_d_enc_H.item()
-                    self.log_dict['l_d_dec_H'] += l_d_dec_H.item()
-                    self.log_dict['l_d_enc_S'] += l_d_enc_S.item()
-                    self.log_dict['l_d_dec_S'] += l_d_dec_S.item()
+                        l_d_dec_S = torch.nn.ReLU()(1.0 + d_S).mean() / bm
+                        l_d_dec_H = torch.nn.ReLU()(1.0 - d_H).mean() / bm
+                        self.log_dict['l_d_enc_H'] += l_d_enc_H.item()
+                        self.log_dict['l_d_dec_H'] += l_d_dec_H.item()
+                        self.log_dict['l_d_enc_S'] += l_d_enc_S.item()
+                        self.log_dict['l_d_dec_S'] += l_d_dec_S.item()
 
-                    l_d_total = l_d_enc_H + l_d_dec_H + l_d_enc_S + l_d_dec_S
-                else:
-                    if self.use_frequency_separation:
-                        pred_d_real = self.netD(self.filter_high(self.var_ref))
-                        pred_d_fake = self.netD(self.filter_high(self.fake_H.detach())) # detach to avoid BP to G
+                        l_d_total = l_d_enc_H + l_d_dec_H + l_d_enc_S + l_d_dec_S
                     else:
-                        pred_d_real = self.netD(self.var_ref)
-                        pred_d_fake = self.netD(self.fake_H.detach())  # detach to avoid BP to G
-                    l_d_real = self.cri_gan(pred_d_real - torch.mean(pred_d_fake), True) / bm
-                    l_d_fake = self.cri_gan(pred_d_fake - torch.mean(pred_d_real), False) / bm
-                    self.log_dict['l_d_real'] += l_d_real.item()
-                    self.log_dict['l_d_fake'] += l_d_fake.item()
+                        if self.use_frequency_separation:
+                            pred_d_real = self.netD(self.filter_high(self.var_ref))
+                            pred_d_fake = self.netD(self.filter_high(self.fake_H.detach())) # detach to avoid BP to G
+                        else:
+                            pred_d_real = self.netD(self.var_ref)
+                            pred_d_fake = self.netD(self.fake_H.detach())  # detach to avoid BP to G
+                        l_d_real = self.cri_gan(pred_d_real - torch.mean(pred_d_fake), True) / bm
+                        l_d_fake = self.cri_gan(pred_d_fake - torch.mean(pred_d_real), False) / bm
+                        self.log_dict['l_d_real'] += l_d_real.item()
+                        self.log_dict['l_d_fake'] += l_d_fake.item()
 
-                    l_d_total = (l_d_real + l_d_fake) / 2
+                        l_d_total = (l_d_real + l_d_fake) / 2
 
-                    if self.opt['train']['gan_type'] == 'wgan-gp':
-                        batch_size = self.var_ref.size(0)
-                        if self.random_pt.size(0) != batch_size:
-                            self.random_pt.resize_(batch_size, 1, 1, 1)
-                        self.random_pt.uniform_()  # Draw random interpolation points
-                        interp = self.random_pt * self.fake_H.detach() + (1 - self.random_pt) * self.var_ref
-                        interp.requires_grad = True
-                        interp_crit = self.netD(interp)
-                        l_d_gp = self.l_gp_w * self.cri_gp(interp, interp_crit) / bm
-                        l_d_total += l_d_gp
-                        self.log_dict['l_d_gp'] += l_d_gp.item()
-            
-            if use_amp:
-                self.scaler.scale(l_d_total).backward()
-            else:
-                l_d_total.backward()
+                        if self.opt['train']['gan_type'] == 'wgan-gp':
+                            batch_size = self.var_ref.size(0)
+                            if self.random_pt.size(0) != batch_size:
+                                self.random_pt.resize_(batch_size, 1, 1, 1)
+                            self.random_pt.uniform_()  # Draw random interpolation points
+                            interp = self.random_pt * self.fake_H.detach() + (1 - self.random_pt) * self.var_ref
+                            interp.requires_grad = True
+                            interp_crit = self.netD(interp)
+                            l_d_gp = self.l_gp_w * self.cri_gp(interp, interp_crit) / bm
+                            l_d_total += l_d_gp
+                            self.log_dict['l_d_gp'] += l_d_gp.item()
+                
+                    if use_amp:
+                        self.scaler.scale(l_d_total).backward()
+                    else:
+                        l_d_total.backward()
 
+        
+                    if self.opt['train']['gan_type'] == 'ciplab':
+                        pass # TODO?
+                    else:
+                        self.log_dict['D_real'] += torch.mean(pred_d_real.detach()).item() / bm
+                        self.log_dict['D_fake'] += torch.mean(pred_d_fake.detach()).item() / bm
         # D outputs
-        if self.opt['train']['gan_type'] == 'ciplab':
-            pass # TODO?
-        else:
-            self.log_dict['D_real'] += torch.mean(pred_d_real.detach()).item() / bm
-            self.log_dict['D_fake'] += torch.mean(pred_d_fake.detach()).item() / bm
-
         if use_amp:  # Use AMP stepper
             if self.cri_gan:
                 if step % self.D_update_ratio == 0 and step > self.D_init_iters:
