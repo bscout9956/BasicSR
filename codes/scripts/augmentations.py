@@ -336,9 +336,7 @@ def noise_img(img_LR, noise_types=['clean']):
     noise_type = random.choice(noise_types).lower()
     
     if noise_type == 'poisson': #note: Poisson noise is not additive like Gaussian, it's dependant on the image values: https://tomroelandts.com/articles/gaussian-noise-is-added-poisson-noise-is-applied
-        vals = len(np.unique(img_LR))
-        vals = 2 ** np.ceil(np.log2(vals))
-        noise_img = np.random.poisson(img_LR * vals) / float(vals)
+        noise_img = np.random.poisson(np.fmax(img_LR, 0) * 256) / 256
     
     elif noise_type == 's&p': 
         amount = np.random.uniform(0.02, 0.15) 
