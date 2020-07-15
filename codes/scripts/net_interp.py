@@ -58,5 +58,8 @@ for k, v_netA in netA.items():
     v_netB = netB[k]
     net_interp[k] = (1 - alpha) * v_netA + alpha * v_netB
 
-torch.save(net_interp, net_interp_path)
+if torch.__version__ >= '1.4.0':
+    torch.save(net_interp, net_interp_path, _use_new_zipfile_serialization=False)
+else:
+    torch.save(net_interp, net_interp_path)
 print('model saved in: ', net_interp_path)

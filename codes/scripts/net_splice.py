@@ -71,5 +71,8 @@ if splice > 0:
     print("% from model A:"+str(100*count_netA/(count_netA+count_netB)))
     print("% from model B:"+str(100*count_netB/(count_netA+count_netB)))
 
-torch.save(net_interp, net_interp_path)
+if torch.__version__ >= '1.4.0':
+    torch.save(net_interp, net_interp_path, _use_new_zipfile_serialization=False)
+else:
+    torch.save(net_interp, net_interp_path)
 print('model saved in: ', net_interp_path)

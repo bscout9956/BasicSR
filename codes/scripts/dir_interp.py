@@ -64,7 +64,10 @@ def main(args):
         for k, v_net in net_interp.items():
             net_interp[k] = v_net/i
         
-        torch.save(net_interp, net_interp_path)
+        if torch.__version__ >= '1.4.0':
+            torch.save(net_interp, net_interp_path, _use_new_zipfile_serialization=False)
+        else:
+            torch.save(net_interp, net_interp_path)
         print('model saved in: ', net_interp_path)
     else:
         print('No directory defined')

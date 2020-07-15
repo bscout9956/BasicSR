@@ -3,6 +3,7 @@ import random
 import torch
 import torch.nn as nn
 import numpy as np
+import utils.util as util
 from collections import Counter
 
 
@@ -78,7 +79,7 @@ class BaseModel():
                 if os.path.exists(lbk_path):
                     os.remove(lbk_path)
                 os.rename(save_path, lbk_path)
-        torch.save(state_dict, save_path)
+        util.save(state_dict, save_path)
 
     def load_network(self, load_path, network, strict=True):
         if isinstance(network, nn.DataParallel):
@@ -104,7 +105,7 @@ class BaseModel():
                 if os.path.exists(lbk_path):
                     os.remove(lbk_path)
                 os.rename(save_path, lbk_path)
-        torch.save(state, save_path)
+        util.save(state, save_path)
 
     def resume_training(self, resume_state):
         '''Resume the optimizers and schedulers for training'''

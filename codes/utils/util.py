@@ -73,6 +73,14 @@ def sorted_nicely( l ):
     return sorted(l, key = alphanum_key)
 
 
+if torch.__version__ >= '1.4.0':
+    def save(obj, f):
+        torch.save(obj, f, _use_new_zipfile_serialization=False)
+else:
+    def save(obj, f):
+        torch.save(obj, f)
+
+
 class OrderedDefaultDict(OrderedDict):
     def __missing__(self, key):
         self[key] = 0
