@@ -130,29 +130,29 @@ class BaseModel():
         if train_opt['lr_scheme'] == 'StepLR':
             for i, s in enumerate(self.schedulers):
                 if self.schedulers[i].step_size != train_opt['lr_step_size'] and train_opt['lr_step_size'] is not None:
-                    print("Updating step_size from ",self.schedulers[i].step_size ," to", train_opt['lr_step_size'])
+                    print("Updating step_size from", self.schedulers[i].step_size, "to", train_opt['lr_step_size'])
                     self.schedulers[i].step_size = train_opt['lr_step_size']
                 #common
                 if self.schedulers[i].gamma !=train_opt['lr_gamma'] and train_opt['lr_gamma'] is not None:
-                    print("Updating lr_gamma from ",self.schedulers[i].gamma," to", train_opt['lr_gamma'])
+                    print("Updating lr_gamma from", self.schedulers[i].gamma, "to", train_opt['lr_gamma'])
                     self.schedulers[i].gamma =train_opt['lr_gamma']
         if train_opt['lr_scheme'] == 'StepLR_Restart':
             for i, s in enumerate(self.schedulers):
                 if self.schedulers[i].step_sizes != train_opt['lr_step_sizes'] and train_opt['lr_step_sizes'] is not None:
-                    print("Updating step_sizes from ",self.schedulers[i].step_sizes," to", train_opt['lr_step_sizes'])
+                    print("Updating step_sizes from", self.schedulers[i].step_sizes, "to", train_opt['lr_step_sizes'])
                     self.schedulers[i].step_sizes = train_opt['lr_step_sizes']
                 if self.schedulers[i].restarts != train_opt['restarts'] and train_opt['restarts'] is not None:
-                    print("Updating restarts from ",self.schedulers[i].restarts," to", train_opt['restarts'])
+                    print("Updating restarts from", self.schedulers[i].restarts, "to", train_opt['restarts'])
                     self.schedulers[i].restarts = train_opt['restarts']
                 if self.schedulers[i].restart_weights != train_opt['restart_weights'] and train_opt['restart_weights'] is not None:
-                    print("Updating restart_weights from ",self.schedulers[i].restart_weights," to", train_opt['restart_weights'])
+                    print("Updating restart_weights from", self.schedulers[i].restart_weights, "to", train_opt['restart_weights'])
                     self.schedulers[i].restart_weights = train_opt['restart_weights']
                 if self.schedulers[i].clear_state != train_opt['clear_state'] and train_opt['clear_state'] is not None:
-                    print("Updating clear_state from ",self.schedulers[i].clear_state," to", train_opt['clear_state'])
+                    print("Updating clear_state from", self.schedulers[i].clear_state, "to", train_opt['clear_state'])
                     self.schedulers[i].clear_state = train_opt['clear_state']
                 #common
                 if self.schedulers[i].gamma !=train_opt['lr_gamma'] and train_opt['lr_gamma'] is not None:
-                    print("Updating lr_gamma from ",self.schedulers[i].gamma," to", train_opt['lr_gamma'])
+                    print("Updating lr_gamma from", self.schedulers[i].gamma, "to", train_opt['lr_gamma'])
                     self.schedulers[i].gamma =train_opt['lr_gamma']
         if train_opt['lr_scheme'] == 'MultiStepLR':
             for i, s in enumerate(self.schedulers):
@@ -160,14 +160,14 @@ class BaseModel():
                     if not list(train_opt['lr_steps']) == sorted(train_opt['lr_steps']):
                         raise ValueError('lr_steps should be a list of'
                              ' increasing integers. Got {}', train_opt['lr_steps'])
-                    print("Updating lr_steps from ",list(self.schedulers[i].milestones) ," to", train_opt['lr_steps'])
+                    print("Updating lr_steps from", list(self.schedulers[i].milestones), "to", train_opt['lr_steps'])
                     if isinstance(self.schedulers[i].milestones, Counter):
                         self.schedulers[i].milestones = Counter(train_opt['lr_steps'])
                     else:
                         self.schedulers[i].milestones = train_opt['lr_steps']
                 #common
                 if self.schedulers[i].gamma !=train_opt['lr_gamma'] and train_opt['lr_gamma'] is not None:
-                    print("Updating lr_gamma from ",self.schedulers[i].gamma," to", train_opt['lr_gamma'])
+                    print("Updating lr_gamma from", self.schedulers[i].gamma, "to", train_opt['lr_gamma'])
                     self.schedulers[i].gamma =train_opt['lr_gamma']
         if train_opt['lr_scheme'] == 'MultiStepLR_Restart':
             for i, s in enumerate(self.schedulers):
@@ -175,22 +175,21 @@ class BaseModel():
                     if not list(train_opt['lr_steps']) == sorted(train_opt['lr_steps']):
                         raise ValueError('lr_steps should be a list of'
                              ' increasing integers. Got {}', train_opt['lr_steps'])
-                    print("Updating lr_steps from ",list(self.schedulers[i].milestones) ," to", train_opt['lr_steps'])
+                    print("Updating lr_steps from", list(self.schedulers[i].milestones), "to", train_opt['lr_steps'])
                     if isinstance(self.schedulers[i].milestones, Counter):
                         self.schedulers[i].milestones = Counter(train_opt['lr_steps'])
                     else:
                         self.schedulers[i].milestones = train_opt['lr_steps']
                 if self.schedulers[i].restarts != train_opt['restarts'] and train_opt['restarts'] is not None:
-                    print("Updating restarts from ",self.schedulers[i].restarts," to", train_opt['restarts'])
+                    print("Updating restarts from", self.schedulers[i].restarts, "to", train_opt['restarts'])
                     self.schedulers[i].restarts = train_opt['restarts']
                 if self.schedulers[i].restart_weights != train_opt['restart_weights'] and train_opt['restart_weights'] is not None:
-                    print("Updating restart_weights from ",self.schedulers[i].restart_weights," to", train_opt['restart_weights'])
+                    print("Updating restart_weights from", self.schedulers[i].restart_weights, "to", train_opt['restart_weights'])
                     self.schedulers[i].restart_weights = train_opt['restart_weights']
                 if self.schedulers[i].clear_state != train_opt['clear_state'] and train_opt['clear_state'] is not None:
-                    print("Updating clear_state from ",self.schedulers[i].clear_state," to", train_opt['clear_state'])
+                    print("Updating clear_state from", self.schedulers[i].clear_state, "to", train_opt['clear_state'])
                     self.schedulers[i].clear_state = train_opt['clear_state']
                 #common
                 if self.schedulers[i].gamma !=train_opt['lr_gamma'] and train_opt['lr_gamma'] is not None:
-                    print("Updating lr_gamma from ",self.schedulers[i].gamma," to", train_opt['lr_gamma'])
+                    print("Updating lr_gamma from", self.schedulers[i].gamma, "to", train_opt['lr_gamma'])
                     self.schedulers[i].gamma =train_opt['lr_gamma']
-        
