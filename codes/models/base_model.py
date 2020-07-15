@@ -156,7 +156,7 @@ class BaseModel():
                     self.schedulers[i].gamma =train_opt['lr_gamma']
         if train_opt['lr_scheme'] == 'MultiStepLR':
             for i, s in enumerate(self.schedulers):
-                if self.schedulers[i].milestones != train_opt['lr_steps'] and train_opt['lr_steps'] is not None:
+                if list(self.schedulers[i].milestones) != train_opt['lr_steps'] and train_opt['lr_steps'] is not None:
                     if not list(train_opt['lr_steps']) == sorted(train_opt['lr_steps']):
                         raise ValueError('lr_steps should be a list of'
                              ' increasing integers. Got {}', train_opt['lr_steps'])
@@ -171,7 +171,7 @@ class BaseModel():
                     self.schedulers[i].gamma =train_opt['lr_gamma']
         if train_opt['lr_scheme'] == 'MultiStepLR_Restart':
             for i, s in enumerate(self.schedulers):
-                if self.schedulers[i].milestones != train_opt['lr_steps'] and train_opt['lr_steps'] is not None:
+                if list(self.schedulers[i].milestones) != train_opt['lr_steps'] and train_opt['lr_steps'] is not None:
                     if not list(train_opt['lr_steps']) == sorted(train_opt['lr_steps']):
                         raise ValueError('lr_steps should be a list of'
                              ' increasing integers. Got {}', train_opt['lr_steps'])
