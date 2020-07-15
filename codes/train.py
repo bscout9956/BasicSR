@@ -85,6 +85,7 @@ def main():
     # torch.backends.cudnn.deterministic = True
 
     # create train and val dataloader
+    val_loader = None
     for phase, dataset_opt in opt['datasets'].items():
         if phase == 'train':
             train_set = create_dataset(dataset_opt)
@@ -159,7 +160,7 @@ def main():
                 logger.info('Backup models and training states saved.')
 
             # validation
-            if current_step % opt['train']['val_freq'] == 0:
+            if current_step % opt['train']['val_freq'] == 0 and val_loader is not None:
                 avg_psnr = 0.0
                 val_pix_err_f = 0.0
                 val_pix_err_nf = 0.0
