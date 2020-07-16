@@ -116,6 +116,7 @@ def main():
         current_step = resume_state['iter']
         model.resume_training(resume_state)  # handle optimizers and schedulers
         model.update_schedulers(opt['train']) # updated schedulers in case configuration has changed
+        del resume_state
     else:
         current_step = 0
         start_epoch = 0
