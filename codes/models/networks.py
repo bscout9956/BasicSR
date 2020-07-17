@@ -168,25 +168,18 @@ def define_D(opt):
     if which_model == 'dis_acd':  # sft-gan, Auxiliary Classifier Discriminator
         from models.modules.architectures import sft_arch
         netD = sft_arch.ACD_VGG_BN_96()
-    elif which_model == 'discriminator_vgg_96':
-        from models.modules.architectures import discriminators
-        netD = discriminators.Discriminator_VGG_96(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'], convtype=opt_net['convtype'])
     elif which_model == 'discriminator_vgg_128_SN':
         from models.modules.architectures import discriminators
         netD = discriminators.Discriminator_VGG_128_SN()
-    elif which_model == 'discriminator_vgg_128':
+    elif which_model.startswith('discriminator_vgg_'): # User-defined case
         from models.modules.architectures import discriminators
-        netD = discriminators.Discriminator_VGG_128(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'], convtype=opt_net['convtype'])
-    elif which_model == 'discriminator_vgg_192' or which_model == 'discriminator_192':
-        from models.modules.architectures import discriminators
-        netD = discriminators.Discriminator_VGG_192(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'], convtype=opt_net['convtype'])
-    elif which_model == 'discriminator_vgg_256' or which_model == 'discriminator_256':
-        from models.modules.architectures import discriminators
-        netD = discriminators.Discriminator_VGG_256(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'], convtype=opt_net['convtype'])
+        vgg_size = which_model[len('discriminator_vgg_'):]
+        try:
+            size = int(vgg_size)
+            netD = discriminators.Discriminator_VGG(size=size, in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
+                norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'], convtype=opt_net['convtype'])
+        except ValueError:
+            raise ValueError('VGG Discriminator size [{:s}] could not be parsed.'.format(vgg_size))
     elif which_model == 'discriminator_vgg': # General adaptative case
         from models.modules.architectures import discriminators
         try:
@@ -197,17 +190,6 @@ def define_D(opt):
             raise ValueError('VGG Discriminator size [{:s}] could not be parsed from the HR patch size. Check that the image patch size is either a power of 2 or 3 multiplied by a power of 2.'.format(vgg_size))
     else:
         raise NotImplementedError('Discriminator model [{:s}] not recognized'.format(which_model))
-    """
-    elif which_model.startswith('discriminator_vgg_'): # User-defined case
-        models.modules.architectures import discriminators
-        vgg_size = which_model[18:]
-        try:
-            size = int(vgg_size)
-            netD = discriminators.Discriminator_VGG(size=size, in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-                norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'], convtype=opt_net['convtype'])
-        except ValueError:
-            raise ValueError('VGG Discriminator size [{:s}] could not be parsed.'.format(vgg_size))
-    #"""
     init_weights(netD, init_type='kaiming', scale=1)
     if gpu_ids:
         netD = nn.DataParallel(netD)
