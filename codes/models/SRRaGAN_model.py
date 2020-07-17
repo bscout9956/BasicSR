@@ -291,13 +291,6 @@ class SRRaGANModel(BaseModel):
                         lr_schedulerR.CosineAnnealingLR_Restart(
                             optimizer, train_opt['T_period'], eta_min=train_opt['eta_min'],
                             restarts=train_opt['restarts'], weights=train_opt['restart_weights']))
-            elif train_opt['lr_scheme'] == 'ReduceLROnPlateau':
-                for optimizer in self.optimizers:
-                    self.schedulers.append(
-                        #lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
-                        lr_scheduler.ReduceLROnPlateau(
-                            optimizer, mode=train_opt['plateau_mode'], factor=train_opt['plateau_factor'], 
-                            threshold=train_opt['plateau_threshold'], patience=train_opt['plateau_patience']))
             else:
                 raise NotImplementedError('Learning rate scheme ("lr_scheme") not defined or not recognized.')
 
