@@ -8,7 +8,7 @@
 - [ ] Test PartialConv2D with random masks.
 - [ ] Add automatic model scale change (preserve conv layers, estimate upscale layers).
 - [ ] Add automatic loading of old models and new ESRGAN models.
-- [ ] Downscale images before and/or after inference. Helps in cleaning up some noise or bring images back to the original scale.
+- [ ] Downscale images before and/or after inference. Helps in cleaning up some noise or bring images back to the original scale.	
 - [ ] Import GMFN's recurrent network and add the feature loss to their MSE model, should have better MSE results with SRGAN's features/textures (Needs testing)
 
 Done
@@ -254,7 +254,7 @@ Following are the original pretrained models that the authors made available for
   </tr>
   
   <tr>
-    <td>SPSR</td>
+    <th>SPSR</td>
     <td>spsr.pth</td>
     <td><sub>Structure-Preserving model</sub></td>
     <td><a href="https://drive.google.com/drive/folders/1c4EbfI6X4KzCiyg1H7TA6rJY-HVgvS3q?usp=sharing">Google Drive</a></td>
@@ -282,7 +282,7 @@ Following are the original pretrained models that the authors made available for
   </tr>
   
   <tr>
-    <td >SRGAN<sup>*1</sup></td>
+    <th>SRGAN<sup>*1</sup></td>
     <td>SRGAN_bicx4_303_505.pth</td>
     <td><sub> SRGAN(with modification)</sub></td>
     <td><a href="https://drive.google.com/drive/folders/1WR2X4_gwiQ9REb5fHfNnBfXOdeuDS8BA?usp=sharing">Google Drive</a></td>
@@ -290,7 +290,7 @@ Following are the original pretrained models that the authors made available for
   </tr>
   
   <tr>
-    <td >SRResNet<sup>*2</sup></td>
+    <th>SRResNet<sup>*2</sup></td>
     <td>SRResNet_bicx4_in3nf64nb16.pth</td>
     <td><sub> SRResNet(with modification)</sub></td>
     <td><a href="https://drive.google.com/drive/folders/1WR2X4_gwiQ9REb5fHfNnBfXOdeuDS8BA?usp=sharing">Google Drive</a></td>
