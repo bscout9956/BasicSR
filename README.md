@@ -1,4 +1,4 @@
-# BasicSR [[ESRGAN]](https://github.com/xinntao/ESRGAN) [[SFTGAN]](https://github.com/xinntao/SFTGAN)
+# BasicSR [[ESRGAN]](https://github.com/xinntao/ESRGAN) [[SPSR]](https://github.com/Maclory/SPSR) [[SFTGAN]](https://github.com/xinntao/SFTGAN)
 
 :black_square_button: TODO
 
@@ -9,9 +9,7 @@
 - [ ] Add automatic model scale change (preserve conv layers, estimate upscale layers).
 - [ ] Add automatic loading of old models and new ESRGAN models.
 - [ ] Downscale images before and/or after inference. Helps in cleaning up some noise or bring images back to the original scale.
-- [ ] Adopt SRPGAN's extraction of features from the discriminator to test if it reduces compute usage
 - [ ] Import GMFN's recurrent network and add the feature loss to their MSE model, should have better MSE results with SRGAN's features/textures (Needs testing)
-- [ ] Import PPON's inference network to train using BasicSR's framework. They use dilated convolutions to increase receptive field and compare against ESRGAN with perceptually good results
 
 Done
 - [:white_check_mark:] Add on the fly augmentations (gaussian noise, blur, JPEG compression).
@@ -58,20 +56,20 @@ An image super-resolution toolkit flexible for development. It now provides:
 - Python package: [`pip install lmdb`](https://github.com/jnwatson/py-lmdb), for lmdb database support.
 
 # Codes
-[`./codes`](https://github.com/victorca25/BasicSR/tree/master/codes). We provide a detailed explaination of the **code framework** in [`./codes`](https://github.com/victorca25/BasicSR/tree/master/codes).
+[`./codes`](https://github.com/BlueAmulet/BasicSR/tree/master/codes). We provide a detailed explaination of the **code framework** in [`./codes`](https://github.com/BlueAmulet/BasicSR/tree/master/codes).
 <p align="center">
    <img src="https://github.com/xinntao/public_figures/blob/master/BasicSR/code_framework.png" height="300">
 </p>
 
 We also provide:
 
-1. Some useful scripts. More details in [`./codes/scripts`](https://github.com/victorca25/BasicSR/tree/master/codes/scripts). 
-1. [Evaluation codes](https://github.com/victorca25/BasicSR/tree/master/metrics), e.g., PSNR/SSIM metric.
+1. Some useful scripts. More details in [`./codes/scripts`](https://github.com/BlueAmulet/BasicSR/tree/master/codes/scripts). 
+1. [Evaluation codes](https://github.com/BlueAmulet/BasicSR/tree/master/metrics), e.g., PSNR/SSIM metric.
 1. [Wiki](https://github.com/xinntao/BasicSR/wiki), e.g., How to make high quality gif with full (true) color, Matlab bicubic imresize and etc.
 
 # Usage
 ### Data and model preparation
-The common **SR datasets** can be found in [Datasets](#datasets). Detailed data preparation can be seen in [`codes/data`](https://github.com/victorca25/BasicSR/tree/master/codes/data).
+The common **SR datasets** can be found in [Datasets](#datasets). Detailed data preparation can be seen in [`codes/data`](https://github.com/BlueAmulet/BasicSR/tree/master/codes/data).
 
 We provide **pretrained models** in [Pretrained models](#pretrained-models).
 
@@ -84,6 +82,10 @@ We provide **pretrained models** in [Pretrained models](#pretrained-models).
 1. Modify the configuration file `options/test/test_sr.json` 
 1. Run command: `python test.py -opt options/test/test_sr.json`
 
+### Test SPSR models
+1. Modify the configuration file `options/test/test_spsr.json` 
+1. Run command: `python test.py -opt options/test/test_spsr.json`
+
 ### Test SFTGAN models
 1. Obtain the segmentation probability maps: `python test_seg.py`
 1. Run command: `python test_sftgan.py`
@@ -92,25 +94,30 @@ We provide **pretrained models** in [Pretrained models](#pretrained-models).
 ### Train ESRGAN (SRGAN) models
 We use a PSNR-oriented pretrained SR model to initialize the parameters for better quality. According to the author's paper and some testing, this will also stabilize the GAN training and allows for faster convergence. 
 
-1. Prepare datasets, usually the DIV2K dataset. More details are in [`codes/data`](https://github.com/victorca25/BasicSR/tree/master/codes/data) and [
+1. Prepare datasets, usually the DIV2K dataset. More details are in [`codes/data`](https://github.com/BlueAmulet/BasicSR/tree/master/codes/data) and [
 (Faster IO speed)](https://github.com/xinntao/BasicSR/wiki/Faster-IO-speed). 
-1. Optional: If the intention is to replicate the original paper here you would prerapre the PSNR-oriented pretrained model. You can also use the original `RRDB_PSNR_x4.pth` as the pretrained model for that purpose, otherwise *any* existing model will work as pretrained.
+1. Optional: If the intention is to replicate the original paper here you would prepare the PSNR-oriented pretrained model. You can also use the original `RRDB_PSNR_x4.pth` as the pretrained model for that purpose, otherwise *any* existing model will work as pretrained.
 1. Modify the configuration file  `options/train/train_esrgan.json`
 1. Run command: `python train.py -opt options/train/train_esrgan.json`
 
 ### Train SR models
-1. Prepare datasets, usually the DIV2K dataset. More details are in [`codes/data`](https://github.com/victorca25/BasicSR/tree/master/codes/data). 
+1. Prepare datasets, usually the DIV2K dataset. More details are in [`codes/data`](https://github.com/BlueAmulet/BasicSR/tree/master/codes/data). 
 1. Modify the configuration file `options/train/train_sr.json`
 1. Run command: `python train.py -opt options/train/train_sr.json`
+
+### Train SPSR models
+1. Prepare datasets, usually the DIV2K dataset. More details are in [`codes/data`](https://github.com/BlueAmulet/BasicSR/tree/master/codes/data). 
+1. Modify the configuration file `options/train/train_spsr.json`
+1. Run command: `python train.py -opt options/train/train_spsr.json`
 
 ### Train SFTGAN models 
 *Pretraining is also important*. We use a PSNR-oriented pretrained SR model (trained on DIV2K) to initialize the SFTGAN model.
 
-1. First prepare the segmentation probability maps for training data: run [`test_seg.py`](https://github.com/victorca25/BasicSR/blob/master/codes/test_seg.py). We provide a pretrained segmentation model for 7 outdoor categories in [Pretrained models](#pretrained-models). We use [Xiaoxiao Li's codes](https://github.com/lxx1991/caffe_mpi) to train our segmentation model and transfer it to a PyTorch model.
-1. Put the images and segmentation probability maps in a folder as described in [`codes/data`](https://github.com/victorca25/BasicSR/tree/master/codes/data).
+1. First prepare the segmentation probability maps for training data: run [`test_seg.py`](https://github.com/BlueAmulet/BasicSR/blob/master/codes/test_seg.py). We provide a pretrained segmentation model for 7 outdoor categories in [Pretrained models](#pretrained-models). We use [Xiaoxiao Li's codes](https://github.com/lxx1991/caffe_mpi) to train our segmentation model and transfer it to a PyTorch model.
+1. Put the images and segmentation probability maps in a folder as described in [`codes/data`](https://github.com/BlueAmulet/BasicSR/tree/master/codes/data).
 1. Transfer the pretrained model parameters to the SFTGAN model. 
     1. First train with `debug` mode and obtain a saved model.
-    1. Run [`transfer_params_sft.py`](https://github.com/victorca25/BasicSR/blob/master/codes/scripts/transfer_params_sft.py) to initialize the model.
+    1. Run [`transfer_params_sft.py`](https://github.com/BlueAmulet/BasicSR/blob/master/codes/scripts/transfer_params_sft.py) to initialize the model.
     1. We provide an initialized model named `sft_net_ini.pth` in [Pretrained models](#pretrained-models)
 1. Modify the configuration file in `options/train/train_sftgan.json`
 1. Run command: `python train.py -opt options/train/train_sftgan.json`
@@ -208,24 +215,24 @@ Several common SR datasets are list below.
   </tr>
 </table>
 
-Any dataset can be augmented to expose the model to information that might not be available in the images, such a noise and blur. For this reason, [Data Augmentation](https://github.com/victorca25/BasicSR/wiki/Dataset-Augmentation) has been added to the options in this repository and it can be extended to include other types of augmentations.
+Any dataset can be augmented to expose the model to information that might not be available in the images, such a noise and blur. For this reason, [Data Augmentation](https://github.com/BlueAmulet/BasicSR/wiki/Dataset-Augmentation) has been added to the options in this repository and it can be extended to include other types of augmentations.
 
 
 # Pretrained models
-The most recent community pretrained models can be found in the [Wiki](https://github.com/alsa64/AI-wiki/wiki/Model-Database).
+The most recent community pretrained models can be found in the [Wiki](https://upscale.wiki/wiki/Model_Database).
 
 You can put the downloaded models in the default `experiments/pretrained_models` folder.
 
 Models that were trained using the same pretrained model or are derivates of the same pretrained model are able to be interpolated to combine the properties of both. The original author demostrated this by interpolating the PSNR pretrained model (which is not perceptually good, but results in smooth images) with the ESRGAN resulting models that have more details but sometimes is excessive to control a balance in the resulting images, instead of interpolating the resulting images from both models, giving much better results.
 
-The authors continued exploring the capabilities of linearly interpolating models in their new work "DNI" (CVPR19): [Deep Network Interpolation for Continuous Imagery Effect Transition](https://xinntao.github.io/projects/DNI) with very interesting results and examples. The script for interpolation can be found in the [net_interp.py](https://github.com/victorca25/BasicSR/blob/master/codes/scripts/net_interp.py) file, but a new version with more options will be commited at a later time. This is an alternative to create new models without additional training and also to create pretrained models for easier fine tuning. 
+The authors continued exploring the capabilities of linearly interpolating models in their new work "DNI" (CVPR19): [Deep Network Interpolation for Continuous Imagery Effect Transition](https://xinntao.github.io/projects/DNI) with very interesting results and examples. The script for interpolation can be found in the [net_interp.py](https://github.com/BlueAmulet/BasicSR/blob/master/codes/scripts/net_interp.py) file, but a new version with more options will be commited at a later time. This is an alternative to create new models without additional training and also to create pretrained models for easier fine tuning. 
 <p align="center">
    <img src="https://camo.githubusercontent.com/913baa366ba395595a9638ab6282a9cbb088ab98/68747470733a2f2f78696e6e74616f2e6769746875622e696f2f70726f6a656374732f444e495f7372632f7465617365722e6a7067" height="300">
 </p>
 
-More details and explanations of interpolation can be found [here](https://github.com/victorca25/BasicSR/wiki/Interpolation) in the Wiki.
+More details and explanations of interpolation can be found [here](https://github.com/BlueAmulet/BasicSR/wiki/Interpolation) in the Wiki.
 
-Following are the original pretrained models that the authors made available for ESRGAN and SFTGAN:
+Following are the original pretrained models that the authors made available for ESRGAN, SPSR, and SFTGAN:
 <table>
   <tr>
     <th>Name</th>
@@ -245,11 +252,19 @@ Following are the original pretrained models that the authors made available for
     <td>RRDB_PSNR_x4.pth</td>
     <td><sub>model with high PSNR performance</sub></td>
   </tr>
-   
+  
+  <tr>
+    <td>SPSR</td>
+    <td>spsr.pth</td>
+    <td><sub>Structure-Preserving model</sub></td>
+    <td><a href="https://drive.google.com/drive/folders/1c4EbfI6X4KzCiyg1H7TA6rJY-HVgvS3q?usp=sharing">Google Drive</a></td>
+    <td><a href="https://pan.baidu.com/s/1bcDiD07aTUO2THmEXZJaiA">Baidu Drive (code muw3)</a></td>
+  </tr>
+  
   <tr>
     <th rowspan="4">SFTGAN</th>
     <td>segmentation_OST_bic.pth</td>
-     <td><sub> segmentation model</sub></td>
+    <td><sub> segmentation model</sub></td>
     <td rowspan="4"><a href="https://drive.google.com/drive/folders/1WR2X4_gwiQ9REb5fHfNnBfXOdeuDS8BA?usp=sharing">Google Drive</a></td>
     <td rowspan="4"><a href="">Baidu Drive</a></td>
   </tr>
@@ -269,7 +284,7 @@ Following are the original pretrained models that the authors made available for
   <tr>
     <td >SRGAN<sup>*1</sup></td>
     <td>SRGAN_bicx4_303_505.pth</td>
-     <td><sub> SRGAN(with modification)</sub></td>
+    <td><sub> SRGAN(with modification)</sub></td>
     <td><a href="https://drive.google.com/drive/folders/1WR2X4_gwiQ9REb5fHfNnBfXOdeuDS8BA?usp=sharing">Google Drive</a></td>
     <td><a href="">Baidu Drive</a></td>
   </tr>
@@ -277,19 +292,19 @@ Following are the original pretrained models that the authors made available for
   <tr>
     <td >SRResNet<sup>*2</sup></td>
     <td>SRResNet_bicx4_in3nf64nb16.pth</td>
-     <td><sub> SRResNet(with modification)</sub></td>
+    <td><sub> SRResNet(with modification)</sub></td>
     <td><a href="https://drive.google.com/drive/folders/1WR2X4_gwiQ9REb5fHfNnBfXOdeuDS8BA?usp=sharing">Google Drive</a></td>
     <td><a href="">Baidu Drive</a></td>
   </tr>
 </table>
 
-For more details about the original pretrained models, please see [`experiments/pretrained_models`](https://github.com/victorca25/BasicSR/tree/master/experiments/pretrained_models).
+For more details about the original pretrained models, please see [`experiments/pretrained_models`](https://github.com/BlueAmulet/BasicSR/tree/master/experiments/pretrained_models).
 
 ---
 
 ## Additional Help 
 
-If you have any questions, we have a [discord server](https://discord.gg/SxvYsgE) where you can ask them and a [Wiki](https://github.com/alsa64/AI-wiki/wiki) with more information.
+If you have any questions, we have a [discord server](https://discord.gg/SxvYsgE) where you can ask them and a [Wiki](https://upscale.wiki/wiki/Main_Page) with more information.
 
 ---
 
@@ -313,4 +328,11 @@ If you have any questions, we have a [discord server](https://discord.gg/SxvYsgE
         booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
         month = {June},
         year = {2018}
+    }
+    @inproceedings{ma2020structure,
+        author={Ma, Cheng and Rao, Yongming and Cheng, Yean and Chen, Ce and Lu, Jiwen and Zhou, Jie},
+        title={Structure-Preserving Super Resolution with Gradient Guidance},
+        booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+        month = {March},
+        year={2020}
     }
