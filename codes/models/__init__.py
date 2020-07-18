@@ -9,6 +9,8 @@ def create_model(opt):
         from .SRRaGAN_model import SRRaGANModel as M
     elif model == 'sftgan':
         from .SFTGAN_ACD_model import SFTGAN_ACD_Model as M
+    elif model == 'spsr':
+        from .SPSR_model import SPSRModel as M
     else:
         raise NotImplementedError('Model [{:s}] not recognized.'.format(model))
     m = M(opt)

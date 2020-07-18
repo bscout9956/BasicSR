@@ -1,6 +1,6 @@
-name: 'RRDB_ESRGAN_x4'
-suffix: '_ESRGAN'
-model: 'srragan' # srragan | asrragan
+name: 'SPSR'
+suffix: null
+model: 'spsr'
 scale: 4
 gpu_ids: [0]
 
@@ -17,11 +17,11 @@ datasets:
     dataroot_LR: '../test2/LR'
 
 path:
-  root: 'D:/Code/GitHub/BasicSR'
-  pretrain_model_G: '../experiments/pretrained_models/RRDB_ESRGAN_x4.pth'
+  root: 'D:/Code/GitHub/BasicSR' # change to your own root path
+  pretrain_model_G: '../experiments/pretrain_models/spsr.pth'
 
 network_G:
-  which_model_G: 'RRDB_net' # RRDB_net | sr_resnet
+  which_model_G: 'spsr_net'
   norm_type: null
   mode: 'CNA'
   nf: 64
@@ -30,5 +30,3 @@ network_G:
   out_nc: 3
   gc: 32
   group: 1
-  #convtype: 'PartialConv2D' #'Conv2D' | 'PartialConv2D'
-  #act_type: 'swish' #'leakyrelu'

@@ -29,7 +29,7 @@ def weights_init_normal(m, std=0.02):
 
 def weights_init_kaiming(m, scale=1):
     classname = m.__class__.__name__
-    if classname.find('Conv') != -1 and classname != "DiscConvBlock": #ASRResNet's DiscConvBlock causes confusion
+    if classname.find('Conv') != -1:
         init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
         m.weight.data *= scale
         if m.bias is not None:
@@ -40,8 +40,9 @@ def weights_init_kaiming(m, scale=1):
         if m.bias is not None:
             m.bias.data.zero_()
     elif classname.find('BatchNorm2d') != -1:
-        init.constant_(m.weight.data, 1.0)
-        init.constant_(m.bias.data, 0.0)
+        if m.affine:
+            init.constant_(m.weight.data, 1.0)
+            init.constant_(m.bias.data, 0.0)
 
 
 def weights_init_orthogonal(m):
@@ -126,12 +127,12 @@ def define_G(opt):
     opt_net = opt['network_G']
     which_model = opt_net['which_model_G']
     
-    if opt_net['net_act']: # If set, use a different activation function
-        act_type = opt_net['net_act']
+    if opt_net['act_type']: # If set, use a different activation function
+        act_type = opt_net['act_type']
     else: # Use networks defaults
         if which_model == 'sr_resnet':
             act_type = 'relu'
-        elif which_model == 'RRDB_net':
+        elif which_model == 'RRDB_net' or which_model == 'spsr_net':
             act_type = 'leakyrelu'
     
     if which_model == 'sr_resnet':  # SRResNet
@@ -146,6 +147,11 @@ def define_G(opt):
     elif which_model == 'RRDB_net':  # RRDB
         from models.modules.architectures import RRDBNet_arch
         netG = RRDBNet_arch.RRDBNet(in_nc=opt_net['in_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'], \
+            nb=opt_net['nb'], gc=opt_net['gc'], upscale=opt_net['scale'], norm_type=opt_net['norm_type'], \
+            act_type=act_type, mode=opt_net['mode'], upsample_mode='upconv', convtype=opt_net['convtype'])
+    elif which_model == 'spsr_net':
+        from models.modules.architectures import SPSRNet_arch
+        netG = SPSRNet_arch.SPSRNet(in_nc=opt_net['in_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'], \
             nb=opt_net['nb'], gc=opt_net['gc'], upscale=opt_net['scale'], norm_type=opt_net['norm_type'], \
             act_type=act_type, mode=opt_net['mode'], upsample_mode='upconv', convtype=opt_net['convtype'])
     else:

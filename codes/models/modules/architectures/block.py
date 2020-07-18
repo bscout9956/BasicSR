@@ -169,6 +169,22 @@ class ShortcutBlock(nn.Module):
         return tmpstr
 
 
+class ShortcutBlockSPSR(nn.Module):
+    #Elementwise sum the output of a submodule to its input
+    def __init__(self, submodule):
+        super(ShortcutBlockSPSR, self).__init__()
+        self.sub = submodule
+
+    def forward(self, x):
+        return x, self.sub
+
+    def __repr__(self):
+        tmpstr = 'Identity + \n|'
+        modstr = self.sub.__repr__().replace('\n', '\n|')
+        tmpstr = tmpstr + modstr
+        return tmpstr
+
+
 def sequential(*args):
     # Flatten Sequential. It unwraps nn.Sequential.
     if len(args) == 1:
