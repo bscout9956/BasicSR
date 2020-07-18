@@ -307,7 +307,7 @@ class SPSRModel(BaseModel):
             for k, v in self.netG.named_parameters():  # optimize part of the model
                 if v.requires_grad:
                     optim_params.append(v)
-                else:
+                elif 'module.get_g_nopadding.weight_' not in k:
                     logger.warning('Params [{:s}] will not optimize.'.format(k))
             self.optimizer_G = networks.define_optim(train_opt, optim_params, 'G')
             self.optimizers.append(self.optimizer_G)
