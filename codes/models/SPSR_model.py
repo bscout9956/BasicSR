@@ -359,7 +359,7 @@ class SPSRModel(BaseModel):
             self.get_grad = Get_gradient()
             self.get_grad_nopadding = Get_gradient_nopadding()
             # Branch_init_iters
-            self.Branch_pretrain = train_opt['Branch_pretrain'] if train_opt['Branch_pretrain'] else 0
+            self.Branch_pretrain = train_opt['Branch_pretrain']
             self.Branch_init_iters = train_opt['Branch_init_iters'] if train_opt['Branch_init_iters'] else 1
             self.log_dict = OrderedDefaultDict()
         # print network
@@ -402,14 +402,14 @@ class SPSRModel(BaseModel):
                 for p in self.netD_grad.parameters():
                     p.requires_grad = False
             
-            if(self.Branch_pretrain): 
-                if(step < self.Branch_init_iters):
-                    for k,v in self.netG.named_parameters():
-                        if 'f_' not in k :
+            if self.Branch_pretrain:
+                if step < self.Branch_init_iters:
+                    for k, v in self.netG.named_parameters():
+                        if 'f_' not in k:
                             v.requires_grad=False
                 else:
-                    for k,v in self.netG.named_parameters():
-                        if 'f_' not in k :
+                    for k, v in self.netG.named_parameters():
+                        if 'f_' not in k:
                             v.requires_grad=True
             
             if not self.cri_gan or (step % self.D_update_ratio == 0 and step > self.D_init_iters):
