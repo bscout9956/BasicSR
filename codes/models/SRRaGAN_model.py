@@ -530,8 +530,8 @@ class SRRaGANModel(BaseModel):
 
 class nocast():
     def __init__(self):
-        return None
+        pass
     def __enter__(self):
-        return self
-    def __exit__(self,x,y,z):
-        return self
+        pass
+    def __exit__(self, *args):
+        pass
