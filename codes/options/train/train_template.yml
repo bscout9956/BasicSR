@@ -128,8 +128,8 @@ network_D:
 #Training options:
 train:
   #Optimizer options:
-  lr_G: !!float 1e-4 # 2e-4 # starting lr_G #Test, default: 1e-4
-  lr_D: !!float 1e-4 # 4e-4 # starting lr_D #Test, default: 1e-4
+  lr_G: 1e-4 # 2e-4 # starting lr_G #Test, default: 1e-4
+  lr_D: 1e-4 # 4e-4 # starting lr_D #Test, default: 1e-4
 
   # ESRGAN-FS Augmentations
   use_frequency_separation: true
@@ -159,18 +159,18 @@ train:
 
   #Losses:
   pixel_criterion: 'l1' # 'l1' | 'l2' | 'cb' | 'elastic' | 'relativel1' | 'l1cosinesim' # pixel loss
-  pixel_weight: !!float 1e-2 # 1e-2 | 1
+  pixel_weight: 1e-2 # 1e-2 | 1
   feature_criterion: 'l1' # 'l1' | 'l2' | 'cb' | 'elastic' # feature loss (VGG feature network)
   feature_weight: 1
   #hfen_criterion: 'l1' # hfen: 'l1' | 'l2' | 'rel_l1' | 'rel_l2' # helps in deblurring and finding edges, lines
-  #hfen_weight: !!float 1e-1
+  #hfen_weight: 1e-1
   #tv_type: 'normal' # helps in denoising, reducing upscale artefacts
-  #tv_weight: !!float 1e-6
+  #tv_weight: 1e-6
   #tv_norm: 2 # 1 for l1 (default) or 2 for l2. Change 'tv_weight' so the l_g_tv is around 1e-02
   #ssim_type: 'ms-ssim' # 'ssim' | 'ms-ssim' # helps to maintain luminance, contrast and covariance between SR and HR
   #ssim_weight: 1
   gan_type: 'vanilla' # 'vanilla' | basic
-  gan_weight: !!float 5e-3 # *
+  gan_weight: 5e-3 # *
   #lpips_weight: 1 # perceptual loss
   #lpips_type: 'net-lin' # net-lin | net *
   #lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
@@ -182,10 +182,10 @@ train:
 
 #Other training options:
   manual_seed: 0
-  niter: !!float 5e5
+  niter: 5e5
   val_freq: 1000 # 5e3
 
 logger:
   print_freq: 200
-  save_checkpoint_freq: !!float 5e3
+  save_checkpoint_freq: 5e3
   backup_freq: 200
