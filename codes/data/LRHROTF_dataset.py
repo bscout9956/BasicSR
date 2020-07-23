@@ -198,7 +198,23 @@ class LRHRDataset(data.Dataset):
         
         #Augmentations during training
         if self.opt['phase'] == 'train':
-            
+            # HR downscale
+            if self.opt['hr_downscale']: 
+                ds_algo = 777
+                if self.opt['hr_downscale_types']:
+                    ds_algo = self.opt['hr_downscale_types']
+                hr_downscale_amt = 2
+                if self.opt['hr_downscale_amount']:
+                    hr_downscale_amt = random.choice(self.opt['hr_downscale_amount'])
+                # will ignore if 1 or if result is smaller than hr size
+                if hr_downscale_amt > 1 and img_HR.shape[0]//hr_downscale_amt >= HR_size and img_HR.shape[1]//hr_downscale_amt >= HR_size:
+                    img_HR, hr_scale_interpol_algo = augmentations.scale_img(img_HR, hr_downscale_amt, algo=ds_algo)
+                    np.clip(img_HR, 0., 1., out=img_HR)
+                    # Downscales LR to match new size of HR if scale does not match after
+                    if img_LR is not None and (img_HR.shape[0] // scale != img_LR.shape[0] or img_HR.shape[1] // scale != img_LR.shape[1]):
+                        img_LR, lr_scale_interpol_algo = augmentations.scale_img(img_LR, hr_downscale_amt, algo=ds_algo)
+                        np.clip(img_LR, 0., 1., out=img_LR)
+
             # Validate there's an img_LR, if not, use img_HR
             if img_LR is None:
                 img_LR = img_HR

@@ -43,6 +43,11 @@ datasets:
     lr_downscale: true # false
     lr_downscale_types: ['area', 'matlab_bicubic'] # select from: ['nearest', 'linear', 'cubic', 'area', 'lanczos4', 'linear_exact', 'matlab_bicubic'] # scale_algos #scaling interpolation options
 
+    #Downscale HR randomly for more variation or by a single value for more dataset control
+    hr_downscale: false # true | false
+    hr_downscale_types: ['area', 'matlab_bicubic'] # select from: ['nearest', 'linear', 'cubic', 'area', 'lanczos4', 'linear_exact', 'matlab_bicubic'] # scale_algos #scaling interpolation options
+    hr_downscale_amount: [1, 2, 4] # Random downscale factors for HR
+
     #Rotations augmentations:
     use_flip: true # flip images
     use_rot: true # rotate images in 90 degree angles
