@@ -170,10 +170,10 @@ train:
   #ssim_type: 'ms-ssim' # 'ssim' | 'ms-ssim' # helps to maintain luminance, contrast and covariance between SR and HR
   #ssim_weight: 1
   gan_type: 'vanilla' # 'vanilla' | basic
-  gan_weight: !!float 5e-3 # *
-  #lpips_weight: 1 # perceptual loss
-  #lpips_type: 'net-lin' # net-lin | net *
-  #lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
+  gan_weight: !!float 2e-2 # 5e-3
+  lpips_weight: 1 # perceptual loss
+  lpips_type: 'net-lin' # net-lin | net *
+  lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
 
   #for wgan-gp
   #D_update_ratio: 1
@@ -186,6 +186,6 @@ train:
   val_freq: 1000 # 5e3
 
 logger:
-  print_freq: 200
-  save_checkpoint_freq: !!float 5e3
-  backup_freq: 200
+  print_freq: 100
+  save_checkpoint_freq: !!float 2e3
+  backup_freq: 500
