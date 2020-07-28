@@ -43,6 +43,11 @@ datasets:
     lr_downscale: true # false
     lr_downscale_types: ['area', 'matlab_bicubic'] # select from: ['nearest', 'linear', 'cubic', 'area', 'lanczos4', 'linear_exact', 'matlab_bicubic'] # scale_algos #scaling interpolation options
 
+    #Downscale HR randomly for more variation or by a single value for more dataset control
+    hr_downscale: false # true | false
+    hr_downscale_types: ['area', 'matlab_bicubic'] # select from: ['nearest', 'linear', 'cubic', 'area', 'lanczos4', 'linear_exact', 'matlab_bicubic'] # scale_algos #scaling interpolation options
+    hr_downscale_amount: [1, 2, 4] # Random downscale factors for HR
+
     #Rotations augmentations:
     use_flip: true # flip images
     use_rot: true # rotate images in 90 degree angles
@@ -128,8 +133,8 @@ network_D:
 #Training options:
 train:
   #Optimizer options:
-  lr_G: !!float 1e-4 # 2e-4 # starting lr_G #Test, default: 1e-4
-  lr_D: !!float 1e-4 # 4e-4 # starting lr_D #Test, default: 1e-4
+  lr_G: 1e-4 # 2e-4 # starting lr_G #Test, default: 1e-4
+  lr_D: 1e-4 # 4e-4 # starting lr_D #Test, default: 1e-4
 
   # ESRGAN-FS Augmentations
   use_frequency_separation: true
@@ -159,21 +164,21 @@ train:
 
   #Losses:
   pixel_criterion: 'l1' # 'l1' | 'l2' | 'cb' | 'elastic' | 'relativel1' | 'l1cosinesim' # pixel loss
-  pixel_weight: !!float 1e-2 # 1e-2 | 1
+  pixel_weight: 1e-2 # 1e-2 | 1
   feature_criterion: 'l1' # 'l1' | 'l2' | 'cb' | 'elastic' # feature loss (VGG feature network)
   feature_weight: 1
   #hfen_criterion: 'l1' # hfen: 'l1' | 'l2' | 'rel_l1' | 'rel_l2' # helps in deblurring and finding edges, lines
-  #hfen_weight: !!float 1e-1
+  #hfen_weight: 1e-1
   #tv_type: 'normal' # helps in denoising, reducing upscale artefacts
-  #tv_weight: !!float 1e-6
+  #tv_weight: 1e-6
   #tv_norm: 2 # 1 for l1 (default) or 2 for l2. Change 'tv_weight' so the l_g_tv is around 1e-02
   #ssim_type: 'ms-ssim' # 'ssim' | 'ms-ssim' # helps to maintain luminance, contrast and covariance between SR and HR
   #ssim_weight: 1
   gan_type: 'vanilla' # 'vanilla' | basic
-  gan_weight: !!float 2e-2 # 5e-3
-  lpips_weight: 1 # perceptual loss
-  lpips_type: 'net-lin' # net-lin | net *
-  lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
+  gan_weight: 5e-3 # *
+  #lpips_weight: 1 # perceptual loss
+  #lpips_type: 'net-lin' # net-lin | net *
+  #lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
 
   #for wgan-gp
   #D_update_ratio: 1
@@ -182,10 +187,10 @@ train:
 
 #Other training options:
   manual_seed: 0
-  niter: !!float 5e5
+  niter: 5e5
   val_freq: 1000 # 5e3
 
 logger:
   print_freq: 100
-  save_checkpoint_freq: !!float 2e3
   backup_freq: 500
+  save_checkpoint_freq: 5e3
