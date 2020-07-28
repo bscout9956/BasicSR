@@ -10,19 +10,9 @@ use_amp: false # set to true if you have a Volta/Turing GPU or better.
 datasets:
   train:
     name: 'DIV2K'
-    mode: 'LRHROTF'
-    #dataroot_HR: '../datasets/train/hr' # Original, with a single directory
-    #dataroot_LR: '../datasets/train/lr' # Original, with a single directory
-    dataroot_HR: [
-          '../datasets/train/hr1',
-          '../datasets/train/hr2',
-          '../datasets/train/hr3'
-          ] # high resolution / ground truth images
-    dataroot_LR: [
-          '../datasets/train/lr1',
-          '../datasets/train/lr2'
-          #'../datasets/train/lr3'
-          ] # low resolution images. If there are missing LR images, they will be generated on the fly from HR
+    mode: 'LRHR'
+    dataroot_HR: '../../datasets/train/hr' # Original, with a single directory
+    dataroot_LR: '../../datasets/train/lr' # Original, with a single directory
     subset_file: null
     use_shuffle: true
     n_workers: 4 # 0 to disable CPU multithreading, or an integrer representing CPU threads to use for dataloading
@@ -78,9 +68,9 @@ datasets:
     #lr_erasing: false
   val:
     name: 'val_set14_part'
-    mode: 'LRHROTF'
-    dataroot_HR: '../datasets/val/hr'
-    dataroot_LR: '../datasets/val/lr'
+    mode: 'LRHR'
+    dataroot_HR: '../../datasets/val/hr'
+    dataroot_LR: '../../datasets/val/lr'
 
     #Color space conversion: 'color' for both LR and HR, 'color_LR' for LR independently, 'color_HR' for HR independently
     #color: 'y' # remove for no conversion (RGB) | 'y' for Y in YCbCr | 'gray' to convert RGB to grayscale | 'RGB' to convert gray to RGB
@@ -92,8 +82,8 @@ datasets:
     lr_downscale_types: ['nearest', 'area'] # ['nearest', 'linear', 'cubic', 'area', 'lanczos4', 'linear_exact', 'matlab_bicubic'] # scale_algos #scaling interpolation options
 
 path:
-  root: 'D:/Code/GitHub/BasicSR'
-  pretrain_model_G: '../experiments/pretrained_models/RRDB_PSNR_x4.pth'
+  root: 'Y:/BasicSR/BasicSR'
+  pretrain_model_G: '../experiments/pretrained_models/4xESRGAN.pth'
   #pretrain_model_G: '../experiments/pretrained_models/RRDB_ESRGAN_x4.pth'
   #resume_state: '../experiments/debug_002_RRDB_ESRGAN_x4_DIV2K/training_state/16.state'
 
@@ -175,10 +165,10 @@ train:
   #ssim_type: 'ms-ssim' # 'ssim' | 'ms-ssim' # helps to maintain luminance, contrast and covariance between SR and HR
   #ssim_weight: 1
   gan_type: 'vanilla' # 'vanilla' | basic
-  gan_weight: 5e-3 # *
-  #lpips_weight: 1 # perceptual loss
-  #lpips_type: 'net-lin' # net-lin | net *
-  #lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
+  gan_weight: 2e-2 # 5e-3
+  lpips_weight: 1 # perceptual loss
+  lpips_type: 'net-lin' # net-lin | net *
+  lpips_net: 'squeeze' # 'vgg' | 'alex' | 'squeeze'
 
   #for wgan-gp
   #D_update_ratio: 1
@@ -188,9 +178,9 @@ train:
 #Other training options:
   manual_seed: 0
   niter: 5e5
-  val_freq: 1000 # 5e3
+  val_freq: 1000 # 1e3
 
 logger:
   print_freq: 100
   backup_freq: 500
-  save_checkpoint_freq: 5e3
+  save_checkpoint_freq: 2e3 # 5e3
